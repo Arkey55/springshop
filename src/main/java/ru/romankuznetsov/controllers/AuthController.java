@@ -1,5 +1,9 @@
 package ru.romankuznetsov.controllers;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,12 +20,19 @@ import ru.romankuznetsov.service.UserService;
 
 @RestController
 @AllArgsConstructor
+@Api("Set of endpoint for new user authentication")
 public class AuthController {
     private UserService userService;
     private JwtTokenUtil jwtTokenUtil;
     private AuthenticationManager authenticationManager;
 
     @PostMapping("/auth")
+    @ApiOperation("Create token foe user")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "username", defaultValue = "bob1", required = true, dataTypeClass = String.class, type = "String", paramType = "query",
+                    value = "Username"),
+            @ApiImplicitParam(name = "password", defaultValue = "111", required = true, dataTypeClass = String.class, type = "String", paramType = "query",
+                    value = "Password")})
     public ResponseEntity<?> createToken(@RequestBody JwtRequest jwtRequest){
 //        try{
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(jwtRequest.getUsername(), jwtRequest.getPassword()));

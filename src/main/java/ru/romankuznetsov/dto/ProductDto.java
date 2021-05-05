@@ -3,11 +3,13 @@ package ru.romankuznetsov.dto;
 import lombok.Data;
 import ru.romankuznetsov.entity.Product;
 
+import java.math.BigDecimal;
+
 @Data
 public class ProductDto {
     private Long id;
     private String title;
-    private Integer price;
+    private BigDecimal price;
 
     public ProductDto(Product product) {
         this.id = product.getId();

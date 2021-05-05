@@ -1,49 +1,60 @@
 package ru.romankuznetsov.controllers;
 
+import lombok.AllArgsConstructor;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.annotation.SessionScope;
-import ru.romankuznetsov.entity.User;
+import ru.romankuznetsov.entity.Cart;
+import ru.romankuznetsov.entity.CartItem;
 import ru.romankuznetsov.entity.Product;
-import ru.romankuznetsov.repository.UserRepository;
-import ru.romankuznetsov.repository.ProductRepository;
-import ru.romankuznetsov.service.Cart;
+import ru.romankuznetsov.entity.User;
+import ru.romankuznetsov.service.CartService;
+import ru.romankuznetsov.service.ProductService;
+import ru.romankuznetsov.service.UserService;
 
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @RestController
-@SessionScope
 @RequestMapping("/api/v1/cart")
+@AllArgsConstructor
 public class CartController {
-    private final UserRepository userRepository;
-    private final ProductRepository productRepository;
-    private final Cart cart;
-
-    public CartController(UserRepository userRepository, ProductRepository productRepository, Cart cart) {
-        this.userRepository = userRepository;
-        this.productRepository = productRepository;
-        this.cart = cart;
-    }
+    private final CartService cartService;
+    private final UserService userService;
+    private final ProductService productService;
 
     @GetMapping
-    public Map<User, List<Product>> showAll(){
-        return cart.getCart();
+    public Cart getCurrentCart(Principal principal){
+        User user = userService.findByUsername(principal.getName()).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        return cartService.findCartByOwnerId(user.getId());
     }
 
-    @GetMapping("/{id}")
-    public List<Product> showById(@PathVariable long id){
-        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("user not found"));
-        return cart.getCart().get(user);
+    @PostMapping
+    public Cart updateCart(@RequestBody Cart cart){
+        return cartService.updateCart(cart);
     }
 
-    @PostMapping("{userId}/{productId}")
-    public void addToCart(@PathVariable long userId, @PathVariable long productId){
-        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("user not found"));
-        List<Product> productList = new ArrayList<>();
-        productList.add(productRepository.findById(productId).orElseThrow(() -> new RuntimeException("Product not found")));
-        for (Product p : productList) {
-            cart.getCart().computeIfAbsent(user, k -> new ArrayList<>()).add(p);
+    @DeleteMapping
+    public Cart clearCart(Principal principal){
+        User user = userService.findByUsername(principal.getName()).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        return cartService.clearCart(user.getId());
+    }
+
+    @GetMapping("/mock")
+    public Cart getMockCart(Principal principal) {
+//        if (principal == null) {
+//            return cartService.getCartForUser(null, null);
+//        }
+        User user = userService.findByUsername(principal.getName()).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        Cart cart = new Cart();
+        List<CartItem> items = new ArrayList<>();
+        List<Product> products = productService.getAllProducts();
+        for (Product product : products) {
+            items.add(new CartItem(product));
         }
+        cart.setOwnerId(1L);
+        cart.setCartItems(items);
+
+        return cart;
     }
 }

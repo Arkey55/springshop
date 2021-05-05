@@ -1,14 +1,17 @@
 package ru.romankuznetsov.entity;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
 @Data
+@NoArgsConstructor
 @Table(name = "order_items")
 public class OrderItem {
     @Id
@@ -31,10 +34,10 @@ public class OrderItem {
     private Integer quantity;
 
     @Column(name = "price_per_product")
-    private Integer pricePerProduct;
+    private BigDecimal pricePerProduct;
 
     @Column(name = "price")
-    private Integer price;
+    private BigDecimal price;
 
     @CreationTimestamp
     @Column(name = "created_at")
@@ -43,4 +46,12 @@ public class OrderItem {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    public OrderItem(CartItem cartItem) {
+        this.product = cartItem.getProduct();
+        this.title = cartItem.getTitle();
+        this.quantity = cartItem.getQuantity();
+        this.pricePerProduct = cartItem.getPricePerProduct();
+        this.price = cartItem.getPrice();
+    }
 }
