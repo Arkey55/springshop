@@ -26,7 +26,7 @@ public class ProductEndpoint {
     }
 
     /*
-        Пример запроса: POST http://localhost:8080/ws
+        Пример запроса: POST http://localhost:8189/ws
 
         <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
         xmlns:f="http://www.geekbrains.ru/spring/ws/products">
@@ -38,7 +38,7 @@ public class ProductEndpoint {
      */
 
     /*
-        Пример запроса: POST http://localhost:8080/ws
+        Пример запроса: POST http://localhost:8189/ws
 
         <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
         xmlns:f="http://www.geekbrains.ru/spring/ws/products">
