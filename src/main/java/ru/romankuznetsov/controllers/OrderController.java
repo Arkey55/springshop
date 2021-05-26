@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.romankuznetsov.dto.OrderDto;
 import ru.romankuznetsov.entity.Order;
 import ru.romankuznetsov.entity.User;
+import ru.romankuznetsov.integration.SendOrderToRabbitMQ;
 import ru.romankuznetsov.service.CartService;
 import ru.romankuznetsov.service.OrderService;
 import ru.romankuznetsov.service.UserService;
@@ -23,6 +24,7 @@ public class OrderController {
     private final OrderService orderService;
     private final UserService userService;
     private final CartService cartService;
+    private final SendOrderToRabbitMQ sendToRabbit;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -40,8 +42,10 @@ public class OrderController {
     }
 
     @GetMapping
-    public List<OrderDto> getCurrentUserOrders(Principal principal) {
-        return orderService.findAllByOwner(principal.getName()).stream().map(OrderDto::new).collect(Collectors.toList());
+    public List<OrderDto> getCurrentUserOrders(Principal principal) throws Exception {
+        List orderList = orderService.findAllByOwner(principal.getName()).stream().map(OrderDto::new).collect(Collectors.toList());
+        sendToRabbit.sendOrder(orderList);
+        return orderList;
 //        return orderService.findAllByOwner(principal.getName());
     }
 }
